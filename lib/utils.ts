@@ -2,6 +2,7 @@
 import { type ClassValue, clsx } from "clsx";
 import qs from "query-string";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -193,3 +194,25 @@ export const getTransactionStatus = (date: Date) => {
 
   return date > twoDaysAgo ? "Processing" : "Success";
 };
+
+/*
+  when i use form from shadcn, it maybe get an error when you submit a log in form
+  because this form will check both of sign in form and sign up form behind the scene,so it will give you an error
+
+  --Solution
+  add type check for attributes, if 
+*/
+export const authFormSchema = (type: string) => z.object({
+  //validation for sign-up page
+  firstName: type === 'sign in' ? z.string().optional() :  z.string().min(3, {message: "PLease enter the valid first name"}),
+  lastName: type === 'sign in' ? z.string().optional() :  z.string().min(3, {message: "PLease enter the valid last name"}),
+  address1: type === 'sign in' ? z.string().optional() :  z.string().max(50, {message: "This information is required"}),
+  city: type === 'sign in' ? z.string().optional() :  z.string().max(50, {message: "This information is required"}),
+  state: type === 'sign-in' ? z.string().optional() : z.string().min(2).max(2),
+  postalCode: type === 'sign in' ? z.string().optional() :  z.string().min(3, {message: "PLease enter the valid postal code"}).max(6, {message: "PLease enter the valid last name"}),
+  dateOfBirth: type === 'sign in' ? z.string().optional() :  z.string().min(3, {message: "PLease enter the valid first name"}),
+  ssn: type === 'sign in' ? z.string().optional() :  z.string().min(3),
+  //validation for sign-in page
+  email: z.string().email(),
+  password: z.string().min(8),
+});
